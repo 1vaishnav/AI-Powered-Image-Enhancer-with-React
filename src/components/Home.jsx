@@ -18,17 +18,40 @@ const Home = () => {
         } catch (error) {
             console.log(error);
             alert("Error while enhancing the image. Please try again later.");
+            setloading(false);
         }
+    };
+
+    const downloadImage = (url) => {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "enhanced-image.png"; // Optional: make it dynamic
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
         <>
             <ImageUpload UploadImageHandler={UploadImageHandler} />
+
             <ImagePreview
                 loading={loading}
                 uploaded={uploadImage}
                 enhanced={enhancedImage?.image}
             />
+
+            {/* Download Button */}
+            {enhancedImage?.image && !loading && (
+                <div className="flex justify-center mt-6">
+                    <button
+                        onClick={() => downloadImage(enhancedImage.image)}
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
+                    >
+                        Download Enhanced Image
+                    </button>
+                </div>
+            )}
         </>
     );
 };
