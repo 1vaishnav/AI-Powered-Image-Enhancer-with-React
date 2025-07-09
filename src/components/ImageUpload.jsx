@@ -1,10 +1,31 @@
+import { db } from '../firebaseConfig';
+import { collection, addDoc } from 'firebase/firestore';
+import { useAuth } from '../AuthContext';
 
 const ImageUpload = (props) => {
-    const ShowImageHandler = (e) => {
+    const { user } = useAuth();
+
+    const ShowImageHandler = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            props.UploadImageHandler(file);
-        }
+        if (!file || !user) return;
+
+        // Pass to parent for preview or enhancement
+        props.UploadImageHandler(file);
+
+        // Optional: Convert image to base64 or use file.name
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64Image = reader.result;
+
+            // Save to Firestore
+            await addDoc(collection(db, "images"), {
+                userId: user.uid,
+                imageName: file.name,
+                imageData: base64Image,
+                timestamp: new Date()
+            });
+        };
+        reader.readAsDataURL(file);
     };
 
     return (
